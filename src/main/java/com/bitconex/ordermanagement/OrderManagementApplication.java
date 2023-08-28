@@ -4,6 +4,8 @@ import com.bitconex.ordermanagement.administration.product.Product;
 import com.bitconex.ordermanagement.administration.product.ProductRepository;
 import com.bitconex.ordermanagement.administration.product.ProductService;
 import com.bitconex.ordermanagement.administration.user.*;
+import com.bitconex.ordermanagement.orderingprocess.OrderRepository;
+import com.bitconex.ordermanagement.orderingprocess.OrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +33,11 @@ public class OrderManagementApplication implements CommandLineRunner {
 	public ProductService productService;
 	@Autowired
 	public ProductRepository productRepository;
+	@Autowired
+	public OrderService orderService;
+	@Autowired
+	public OrderRepository orderRepository;
+
 	private static final Logger LOG = LoggerFactory.getLogger(OrderManagementApplication.class);
 
 	public static void main(String[] args) {
@@ -77,7 +84,41 @@ public class OrderManagementApplication implements CommandLineRunner {
 			// N A R U DŽ B E N I  P R O C E S
 			System.out.println("You are CUSTOMER...");
 			System.out.println("STARTING: Ordering process!");
+			while(true) {
+				System.out.println("Choose an option: ");
+				System.out.println("1. List of orders for customer: ");
+				System.out.println("2. Start new order: ");
+				System.out.println("0. Exit");
+
+				Scanner s = new Scanner(System.in);
+				if (s.hasNextInt()) {
+					int choice = s.nextInt();
+					switch (choice) {
+						case 1:
+							listOfAllOrdersForCustomer(user);
+							break;
+						case 2:
+							startNewOrder(user);
+							break;
+						case 0:
+							System.out.println("Exiting...");
+							return;
+						default:
+							System.out.println("Invalid selection. Please select again.");
+					}
+				} else {
+					System.out.println("Invalid input. Please enter a valid integer.");
+				}
+			}
 		}
+	}
+
+	private void startNewOrder(User user) {
+		orderService.addNewOrder(user);
+	}
+
+	private void listOfAllOrdersForCustomer(User user) {
+		//TO DO
 	}
 
 	private void listOfAllOrders() {
@@ -169,7 +210,7 @@ public class OrderManagementApplication implements CommandLineRunner {
 		productService.printAllProducts();
 	}
 
-	private void addNewProduct() {  //ako se ne unese int error
+	private void addNewProduct() {
 		Product product = new Product();
 		System.out.println("Please enter name of product: ");
 		String name = scanner();
@@ -206,8 +247,9 @@ public class OrderManagementApplication implements CommandLineRunner {
 		do {
 			System.out.println("Please enter quantity: ");
 			Scanner scan = new Scanner(System.in);
-			if (scan.hasNextInt())
-			quantity = scan.nextInt();
+			if (scan.hasNextInt()) {
+				quantity = scan.nextInt();
+			}
 		} while(quantity == 0);
 		product.setQuantity(quantity);
 		productService.addNewProduct(product);
