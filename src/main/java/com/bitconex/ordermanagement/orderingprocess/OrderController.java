@@ -2,6 +2,7 @@ package com.bitconex.ordermanagement.orderingprocess;
 
 import com.bitconex.ordermanagement.administration.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,5 +31,10 @@ public class OrderController {
     @DeleteMapping
     public void deleteOrder(String userName) {
         orderService.deleteOrder(userName);
+    }
+    @GetMapping("/export-csv")
+    public ResponseEntity<String> exportOrdersToCsv(@RequestParam String filePath) {
+        orderService.exportOrdersToCsv(filePath);
+        return ResponseEntity.ok("Orders exported to CSV.");
     }
 }

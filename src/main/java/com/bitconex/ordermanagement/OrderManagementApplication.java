@@ -122,7 +122,10 @@ public class OrderManagementApplication implements CommandLineRunner {
 	}
 
 	private void listOfAllOrders() {
-		//TO DO
+		System.out.println("Please enter path: ");
+		String path = scanner();
+		orderService.exportOrdersToCsv(path);
+
 	}
 
 	private void productCatalog() {

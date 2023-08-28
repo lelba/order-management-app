@@ -20,7 +20,7 @@ public class UserController {
         return userService.getUsers();
     }
 
-    @PostMapping
+    @PostMapping("/add")
     public void addNewUser(User user) {
         userService.addNewUser(user);
     }
