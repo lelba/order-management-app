@@ -1,5 +1,6 @@
 package com.bitconex.ordermanagement.administration.product;
 
+import com.bitconex.ordermanagement.orderingprocess.Order;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -50,6 +51,9 @@ public class Product {
             nullable = false
     )
     private int quantity;
+
+    @ManyToOne
+    private Order order;
 
     @Override
     public boolean equals(Object o) {
