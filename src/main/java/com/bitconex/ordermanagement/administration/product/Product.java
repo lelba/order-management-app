@@ -35,7 +35,7 @@ public class Product {
             name = "PRICE",
             nullable = false
     )
-    private Long price;
+    private Double price;
     @Column(
             name = "VALID_FROM",
             nullable = false
