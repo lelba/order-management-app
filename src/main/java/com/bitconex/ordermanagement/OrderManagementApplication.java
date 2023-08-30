@@ -86,8 +86,8 @@ public class OrderManagementApplication implements CommandLineRunner {
 			System.out.println("STARTING: Ordering process!");
 			while(true) {
 				System.out.println("Choose an option: ");
-				System.out.println("1. List of orders for customer: ");
-				System.out.println("2. Start new order: ");
+				System.out.println("1. List of orders for customer ");
+				System.out.println("2. Start new order ");
 				System.out.println("0. Exit");
 
 				Scanner s = new Scanner(System.in);
@@ -118,11 +118,11 @@ public class OrderManagementApplication implements CommandLineRunner {
 	}
 
 	private void listOfAllOrdersForCustomer(User user) {
-		//TO DO
+		orderService.printAllOrdersForCustomer(user);
 	}
 
 	private void listOfAllOrders() {
-		//TO DO
+		orderService.printOrdersInJsonFormat();
 	}
 
 	private void productCatalog() {
@@ -215,13 +215,13 @@ public class OrderManagementApplication implements CommandLineRunner {
 		System.out.println("Please enter name of product: ");
 		String name = scanner();
 		product.setName(name);
-		Long price = null;
+		Double price = null;
 		Scanner s;
 		do {
 			System.out.println("Please enter price: ");
 			s = new Scanner(System.in);
-		} while(!s.hasNextLong());
-		price = s.nextLong();
+		} while(!s.hasNextDouble());
+		price = s.nextDouble();
 		product.setPrice(price);
 		do {
 			System.out.println("Please enter valid from (yyyy-MM-dd): ");

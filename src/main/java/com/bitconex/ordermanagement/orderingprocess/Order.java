@@ -2,6 +2,10 @@ package com.bitconex.ordermanagement.orderingprocess;
 
 import com.bitconex.ordermanagement.administration.product.Product;
 import com.bitconex.ordermanagement.administration.user.User;
+import com.bitconex.ordermanagement.orderingprocess.orderitem.OrderItem;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -29,8 +33,9 @@ public class Order {
     )
     private Long id;
 
-    @OneToMany(mappedBy = "order")
-    private List<Product> products = new ArrayList<>();
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.PERSIST)
+    private List<OrderItem> orderItems = new ArrayList<>();
 
     @ManyToOne
     private User user;
