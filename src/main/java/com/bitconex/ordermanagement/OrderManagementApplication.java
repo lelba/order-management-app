@@ -71,7 +71,7 @@ public class OrderManagementApplication implements CommandLineRunner {
 						case 1 -> userAdministration();
 						case 2 -> productCatalog();
 						case 3 -> listOfAllOrders();
-						case 0 -> System.out.println("Exiting...");
+						case 0 -> System.out.println("Exiting...");  //fali return
 						default -> System.out.println("Invalid selection. Please select again.");
 					}
 				} else {
@@ -122,7 +122,7 @@ public class OrderManagementApplication implements CommandLineRunner {
 	}
 
 	private void listOfAllOrders() {
-		orderService.printOrdersInJsonFormat();
+		orderService.printOrdersInCSVFormat();
 	}
 
 	private void productCatalog() {

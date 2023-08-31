@@ -4,7 +4,9 @@ import com.bitconex.ordermanagement.administration.product.Product;
 import com.bitconex.ordermanagement.administration.product.ProductRepository;
 import com.bitconex.ordermanagement.administration.product.ProductService;
 import com.bitconex.ordermanagement.administration.user.User;
+import com.bitconex.ordermanagement.orderingprocess.order.OrderDTO;
 import com.bitconex.ordermanagement.orderingprocess.orderitem.OrderItem;
+import com.bitconex.ordermanagement.orderingprocess.orderitem.OrderItemDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -13,6 +15,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderService {
@@ -20,13 +23,15 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final ProductService productService;
     private final ProductRepository productRepository;
+    private final ObjectMapper objectMapper;
 
 
-    public OrderService(OrderRepository orderRepository, ProductService productService, ProductRepository productRepository) {
+    public OrderService(OrderRepository orderRepository, ProductService productService, ProductRepository productRepository, ObjectMapper objectMapper) {
         this.orderRepository = orderRepository;
         this.productService = productService;
         this.productRepository = productRepository;
 
+        this.objectMapper = objectMapper;
     }
 
     public List<Order> getOrders() {
@@ -103,11 +108,48 @@ public class OrderService {
     }
 
 
-    public void printOrdersInJsonFormat() {
+    public void printOrdersInCSVFormat() {
 
     }
 
     public void printAllOrdersForCustomer(User user) {
+        List<Order> orders = orderRepository.findOrdersByUser(user);
+        List<OrderDTO> orderDTOs = convertToOrderDTOList(orders);
+        try {
+            String jsonOrders = objectMapper.writeValueAsString(orderDTOs);
+            System.out.println(jsonOrders);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
+    private List<OrderDTO> convertToOrderDTOList(List<Order> orders) {
+        return orders.stream()
+                .map(this::convertToOrderDTO)
+                .collect(Collectors.toList());
+    }
+
+    private OrderDTO convertToOrderDTO(Order order) {
+        OrderDTO orderDTO = new OrderDTO();
+        orderDTO.setId(order.getId());
+    //    orderDTO.setUser(order.getUser());
+        orderDTO.setRegisterDate(order.getRegisterDate());
+        orderDTO.setTotalPrice(order.getTotalPrice());
+        orderDTO.setOrderItemDTOList(convertToOrderItemDTOList(order.getOrderItems()));
+        return orderDTO;
+    }
+
+    private List<OrderItemDTO> convertToOrderItemDTOList(List<OrderItem> orderItems) {
+        return orderItems.stream()
+                .map(this::convertToOrderItemDTO)
+                .collect(Collectors.toList());
+    }
+
+    private OrderItemDTO convertToOrderItemDTO(OrderItem orderItem) {
+        OrderItemDTO orderItemDTO = new OrderItemDTO();
+        orderItemDTO.setId(orderItem.getOrderItem_id());
+        orderItemDTO.setProduct(orderItem.getProduct());
+   //     orderItemDTO.setOrder(orderItem.getOrder());
+        return orderItemDTO;
     }
 }
