@@ -1,4 +1,4 @@
-package com.bitconex.ordermanagement.orderingprocess;
+package com.bitconex.ordermanagement.orderingprocess.order;
 
 import com.bitconex.ordermanagement.administration.user.User;
 import org.springframework.beans.factory.annotation.Autowired;

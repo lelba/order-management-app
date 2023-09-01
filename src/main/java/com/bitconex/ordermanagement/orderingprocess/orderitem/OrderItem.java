@@ -1,8 +1,7 @@
 package com.bitconex.ordermanagement.orderingprocess.orderitem;
 
 import com.bitconex.ordermanagement.administration.product.Product;
-import com.bitconex.ordermanagement.orderingprocess.Order;
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.bitconex.ordermanagement.orderingprocess.order.Order;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,13 +9,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "T_ORDER_ITEM")
+@Table(name = "\"T_ORDER_ITEM\"")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 public class OrderItem {
-
 
     @Id
     @SequenceGenerator(name = "product_seq", sequenceName = "product_seq", allocationSize = 1)

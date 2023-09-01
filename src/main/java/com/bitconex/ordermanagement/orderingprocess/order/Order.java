@@ -1,4 +1,4 @@
-package com.bitconex.ordermanagement.orderingprocess;
+package com.bitconex.ordermanagement.orderingprocess.order;
 
 import com.bitconex.ordermanagement.administration.product.Product;
 import com.bitconex.ordermanagement.administration.user.User;
@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "T_ORDER")
+@Table(name = "\"T_ORDER\"")
 @Getter
 @Setter
 @NoArgsConstructor

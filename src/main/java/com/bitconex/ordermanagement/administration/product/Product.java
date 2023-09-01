@@ -1,6 +1,6 @@
 package com.bitconex.ordermanagement.administration.product;
 
-import com.bitconex.ordermanagement.orderingprocess.Order;
+import com.bitconex.ordermanagement.orderingprocess.order.Order;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,7 +15,7 @@ import java.util.Objects;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "T_PRODUCT")
+@Table(name = "\"T_PRODUCT\"")
 public class Product {
 
     @Id
