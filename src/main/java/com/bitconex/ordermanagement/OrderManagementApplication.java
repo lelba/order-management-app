@@ -4,8 +4,8 @@ import com.bitconex.ordermanagement.administration.product.Product;
 import com.bitconex.ordermanagement.administration.product.ProductRepository;
 import com.bitconex.ordermanagement.administration.product.ProductService;
 import com.bitconex.ordermanagement.administration.user.*;
-import com.bitconex.ordermanagement.orderingprocess.OrderRepository;
-import com.bitconex.ordermanagement.orderingprocess.OrderService;
+import com.bitconex.ordermanagement.orderingprocess.order.OrderRepository;
+import com.bitconex.ordermanagement.orderingprocess.order.OrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +19,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Optional;
 import java.util.Scanner;
-
 
 
 @SpringBootApplication
@@ -71,7 +70,10 @@ public class OrderManagementApplication implements CommandLineRunner {
 						case 1 -> userAdministration();
 						case 2 -> productCatalog();
 						case 3 -> listOfAllOrders();
-						case 0 -> System.out.println("Exiting...");  //fali return
+						case 0 -> {
+							System.out.println("Exiting...");
+							return;
+						}
 						default -> System.out.println("Invalid selection. Please select again.");
 					}
 				} else {

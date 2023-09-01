@@ -1,10 +1,12 @@
-package com.bitconex.ordermanagement.orderingprocess;
+package com.bitconex.ordermanagement.orderingprocess.order;
 
 import com.bitconex.ordermanagement.administration.product.Product;
 import com.bitconex.ordermanagement.administration.product.ProductRepository;
 import com.bitconex.ordermanagement.administration.product.ProductService;
 import com.bitconex.ordermanagement.administration.user.User;
+import com.bitconex.ordermanagement.orderingprocess.order.Order;
 import com.bitconex.ordermanagement.orderingprocess.order.OrderDTO;
+import com.bitconex.ordermanagement.orderingprocess.order.OrderRepository;
 import com.bitconex.ordermanagement.orderingprocess.orderitem.OrderItem;
 import com.bitconex.ordermanagement.orderingprocess.orderitem.OrderItemDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,7 +32,6 @@ public class OrderService {
         this.orderRepository = orderRepository;
         this.productService = productService;
         this.productRepository = productRepository;
-
         this.objectMapper = objectMapper;
     }
 

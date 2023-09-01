@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "T_ADDRESS")
+@Table(name = "\"T_ADDRESS\"")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -16,8 +16,8 @@ import lombok.Setter;
 public class Address {
 
     @Id
-    @GeneratedValue(generator = "address_gen", strategy = GenerationType.AUTO)
-    @SequenceGenerator(name = "address_gen", sequenceName = "address_seq", allocationSize = 1)
+    @SequenceGenerator(name = "address_seq", sequenceName = "address_seq", allocationSize = 1)
+    @GeneratedValue(generator = "address_seq", strategy = GenerationType.SEQUENCE)
     private Long addressId;
     private String street;
     private Long houseNumber;
