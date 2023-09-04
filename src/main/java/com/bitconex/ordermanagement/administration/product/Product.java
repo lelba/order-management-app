@@ -1,6 +1,7 @@
 package com.bitconex.ordermanagement.administration.product;
 
 import com.bitconex.ordermanagement.orderingprocess.order.Order;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -40,11 +41,13 @@ public class Product {
             name = "VALID_FROM",
             nullable = false
     )
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     private Date validFrom;
     @Column(
             name = "VALID_TO",
             nullable = false
     )
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     private Date validTo;
     @Column(
             name = "QUANTITY",

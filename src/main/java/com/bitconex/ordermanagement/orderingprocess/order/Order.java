@@ -34,7 +34,7 @@ public class Order {
     private Long id;
 
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     private List<OrderItem> orderItems = new ArrayList<>();
 
     @ManyToOne

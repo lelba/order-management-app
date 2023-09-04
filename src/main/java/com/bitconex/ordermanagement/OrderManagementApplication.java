@@ -4,6 +4,7 @@ import com.bitconex.ordermanagement.administration.product.Product;
 import com.bitconex.ordermanagement.administration.product.ProductRepository;
 import com.bitconex.ordermanagement.administration.product.ProductService;
 import com.bitconex.ordermanagement.administration.user.*;
+import com.bitconex.ordermanagement.orderingprocess.order.OrderExportService;
 import com.bitconex.ordermanagement.orderingprocess.order.OrderRepository;
 import com.bitconex.ordermanagement.orderingprocess.order.OrderService;
 import org.slf4j.Logger;
@@ -36,6 +37,8 @@ public class OrderManagementApplication implements CommandLineRunner {
 	public OrderService orderService;
 	@Autowired
 	public OrderRepository orderRepository;
+	@Autowired
+	public OrderExportService orderExportService;
 
 	private static final Logger LOG = LoggerFactory.getLogger(OrderManagementApplication.class);
 
@@ -124,7 +127,11 @@ public class OrderManagementApplication implements CommandLineRunner {
 	}
 
 	private void listOfAllOrders() {
-		orderService.printOrdersInCSVFormat();
+		System.out.println("Please enter directory path: ");
+		String directoryPath = scanner();
+		System.out.println("Please enter file name: ");
+		String fileName = scanner();
+		orderExportService.exportOrdersToCsv(directoryPath, fileName);
 	}
 
 	private void productCatalog() {
