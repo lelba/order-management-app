@@ -9,7 +9,5 @@ import lombok.Setter;
 public class OrderItemDTO {
 
     private Long id;
- //   private Order order;
     private Product product;
-
 }

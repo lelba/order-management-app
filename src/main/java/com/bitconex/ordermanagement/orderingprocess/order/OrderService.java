@@ -133,7 +133,6 @@ public class OrderService {
     private OrderDTO convertToOrderDTO(Order order) {
         OrderDTO orderDTO = new OrderDTO();
         orderDTO.setId(order.getId());
-    //    orderDTO.setUser(order.getUser());
         orderDTO.setRegisterDate(order.getRegisterDate());
         orderDTO.setTotalPrice(order.getTotalPrice());
         orderDTO.setOrderItemDTOList(convertToOrderItemDTOList(order.getOrderItems()));
@@ -150,7 +149,18 @@ public class OrderService {
         OrderItemDTO orderItemDTO = new OrderItemDTO();
         orderItemDTO.setId(orderItem.getOrderItem_id());
         orderItemDTO.setProduct(orderItem.getProduct());
-   //     orderItemDTO.setOrder(orderItem.getOrder());
         return orderItemDTO;
+    }
+
+    public List<OrderDTO> getOrdersDTO() {
+        List<Order> orders = orderRepository.findAll();
+        List<OrderDTO> orderDTOs = new ArrayList<>();
+
+        for (Order order : orders) {
+            OrderDTO orderDTO = convertToOrderDTO(order);
+            orderDTOs.add(orderDTO);
+        }
+
+        return orderDTOs;
     }
 }

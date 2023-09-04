@@ -62,7 +62,6 @@ public class UserService {
                 userDTOs.add(adminDTO);
             }
         }
-
         try {
             String jsonUsers = objectMapper.writeValueAsString(userDTOs);
             System.out.println(jsonUsers);
