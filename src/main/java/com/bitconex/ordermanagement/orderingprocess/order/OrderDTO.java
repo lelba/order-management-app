@@ -1,8 +1,10 @@
 package com.bitconex.ordermanagement.orderingprocess.order;
 
 import com.bitconex.ordermanagement.administration.user.User;
+import com.bitconex.ordermanagement.administration.user.UserDTO;
 import com.bitconex.ordermanagement.orderingprocess.orderitem.OrderItemDTO;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,8 +17,8 @@ public class OrderDTO {
 
     private Long id;
     private List<OrderItemDTO> orderItemDTOList;
- //   private UserDTO user;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
+    private UserDTO user;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDateTime registerDate;
     private Double totalPrice;
 

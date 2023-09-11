@@ -16,16 +16,30 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final ObjectMapper objectMapper;
+    private final AddressRepository addressRepository;
 
     @Autowired
-    public UserService(UserRepository userRepository, ObjectMapper objectMapper) {
+    public UserService(UserRepository userRepository, ObjectMapper objectMapper, AddressRepository addressRepository) {
         this.userRepository = userRepository;
         this.objectMapper = objectMapper;
+        this.addressRepository = addressRepository;
         this.objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
     }
 
-    public List<User> getUsers() {
-        return userRepository.findAll();
+    public List<Object> getUsers() {
+        List<User> users = userRepository.findAll();
+        List<Object> userDtos = new ArrayList<>();
+
+        for(User user : users) {
+            if(UserRole.ADMIN.equals(user.getRole())) {
+                AdminDTO adminDTO = convertToAdminDTO(user);
+                userDtos.add(adminDTO);
+            } else {
+                CustomerDTO customerDTO = convertToCustomerDTO(user);
+                userDtos.add(customerDTO);
+            }
+        }
+        return userDtos;
     }
 
 
@@ -34,6 +48,10 @@ public class UserService {
         if (appUserOptional.isPresent()) {
             throw new IllegalStateException("Username taken!");
         }
+        if(user.getRole().equals(UserRole.CUSTOMER)){
+            Address address = new Address();
+            addressRepository.save(address);
+        } //provjeriti ?????
         userRepository.save(user);
     }
 
@@ -50,24 +68,22 @@ public class UserService {
     }
 
     public void printAllUsersInJsonFormat() {
-        List<User> users = userRepository.findAll();
-        List<Object> userDTOs = new ArrayList<>();
-
-        for (User user : users) {
-            if (user.getRole() == UserRole.CUSTOMER) {
-                CustomerDTO customerDTO = convertToCustomerDTO(user);
-                userDTOs.add(customerDTO);
-            } else if (user.getRole() == UserRole.ADMIN) {
-                AdminDTO adminDTO = convertToAdminDTO(user);
-                userDTOs.add(adminDTO);
-            }
-        }
+        List<Object> userDTOs = getUsers();
         try {
             String jsonUsers = objectMapper.writeValueAsString(userDTOs);
             System.out.println(jsonUsers);
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+
+    public UserDTO convertToUserDTO(User user) {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUserName(user.getUserName());
+        userDTO.setId(user.getId());
+        userDTO.setEmail(user.getEmail());
+        return userDTO;
     }
 
     public AdminDTO convertToAdminDTO(User user) {

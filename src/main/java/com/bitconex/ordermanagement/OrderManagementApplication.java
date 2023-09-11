@@ -213,7 +213,7 @@ public class OrderManagementApplication implements CommandLineRunner {
 	private void deleteProductByName() {
 		System.out.println("Please enter name of product: ");
 		String name = scanner();
-		productService.deleteProductByName(name);
+		productService.deleteProductByName_setNotActive(name);
 	}
 	private void listOfAllProducts() {
 		productService.printAllProducts();
@@ -445,7 +445,7 @@ public class OrderManagementApplication implements CommandLineRunner {
 
 	public String scanner() {
 		Scanner s = new Scanner(System.in);
-		return s.next();
+		return s.next();   //nextLine
 	}
 
 }
