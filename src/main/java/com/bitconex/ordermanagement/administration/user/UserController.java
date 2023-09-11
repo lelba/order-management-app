@@ -10,23 +10,25 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+
     @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
+
     }
 
-    @GetMapping("/get")
-    public List<User> getUsers() {
+    @GetMapping("/getAllUsers")
+    public List<Object> getUsers() {
         return userService.getUsers();
     }
 
-    @PostMapping
-    public void addNewUser(User user) {
+    @PostMapping("/addNewUser")
+    public void addNewUser(@RequestBody User user) {
         userService.addNewUser(user);
     }
 
-    @DeleteMapping
-    public void deleteUser(String userName) {
+    @DeleteMapping("/deleteUser/{userName}")  //brisanje korisika koji nema narudzbu
+    public void deleteUser(@PathVariable String userName) {
         userService.deleteUser(userName);
     }
 

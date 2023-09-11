@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/orders")
+@RequestMapping("/api/orders")
 public class OrderController {
 
     private final OrderService orderService;
@@ -22,18 +22,14 @@ public class OrderController {
         this.orderExportService = orderExportService;
     }
 
-    @GetMapping
-    public List<Order> getOrders() {
+    @GetMapping("/getOrders")
+    public List<OrderDTO> getOrders() {
         return orderService.getOrders();
     }
 
-    @PostMapping
-    public void addNewOrder(User user) {
+    @PostMapping("/addNewOrder")
+    public void addNewOrder(@RequestBody User user) {
         orderService.addNewOrder(user);
     }
 
-    @DeleteMapping
-    public void deleteOrder(String userName) {
-        orderService.deleteOrder(userName);
-    }
 }

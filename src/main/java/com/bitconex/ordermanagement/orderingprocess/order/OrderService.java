@@ -1,20 +1,21 @@
 package com.bitconex.ordermanagement.orderingprocess.order;
 
 import com.bitconex.ordermanagement.administration.product.Product;
+import com.bitconex.ordermanagement.administration.product.ProductDTO;
 import com.bitconex.ordermanagement.administration.product.ProductRepository;
 import com.bitconex.ordermanagement.administration.product.ProductService;
 import com.bitconex.ordermanagement.administration.user.User;
-import com.bitconex.ordermanagement.orderingprocess.order.Order;
-import com.bitconex.ordermanagement.orderingprocess.order.OrderDTO;
-import com.bitconex.ordermanagement.orderingprocess.order.OrderRepository;
+import com.bitconex.ordermanagement.administration.user.UserService;
 import com.bitconex.ordermanagement.orderingprocess.orderitem.OrderItem;
 import com.bitconex.ordermanagement.orderingprocess.orderitem.OrderItemDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
@@ -24,19 +25,23 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final ProductService productService;
+    private final UserService userService;
     private final ProductRepository productRepository;
     private final ObjectMapper objectMapper;
 
 
-    public OrderService(OrderRepository orderRepository, ProductService productService, ProductRepository productRepository, ObjectMapper objectMapper) {
+    public OrderService(OrderRepository orderRepository, ProductService productService, UserService userService, ProductRepository productRepository, ObjectMapper objectMapper) {
         this.orderRepository = orderRepository;
         this.productService = productService;
+        this.userService = userService;
         this.productRepository = productRepository;
         this.objectMapper = objectMapper;
     }
 
-    public List<Order> getOrders() {
-        return orderRepository.findAll();
+    public List<OrderDTO> getOrders() {
+        List<Order> orders = orderRepository.findAll();
+        List<OrderDTO> orderDTOS = convertToOrderDTOList(orders);
+        return orderDTOS;
     }
 
     @Transactional
@@ -77,9 +82,6 @@ public class OrderService {
         System.out.println("--------------------------------");
     }
 
-    public void deleteOrder(String userName) {
-    }
-
     @Transactional
     public Order createAndAddProductsToOrder(User user) {
         Order newOrder = new Order();
@@ -88,11 +90,11 @@ public class OrderService {
         newOrder.setTotalPrice(0.0);
 
         Scanner scanner = new Scanner(System.in);
-        List<Product> availableProducts = productService.getProducts();
+        List<Product> availableProducts = productRepository.findAllByActiveIsTrueAndValidToIsAfter(new Date());
         List<OrderItem> orderItems = new ArrayList<>();
         for (Product product : availableProducts) {
-            System.out.printf("Add product '%s' to the order? (y/n): ", product.getName());
-            String choice = scanner.nextLine();
+            System.out.printf("Add product '%s' to the order? (y/n): ", product.getName()); //plus cjena
+            String choice = scanner.next();
             if ("y".equalsIgnoreCase(choice)) {
                 OrderItem orderItem = new OrderItem();
                 orderItem.setOrder(newOrder);
@@ -101,6 +103,10 @@ public class OrderService {
                 orderItems.add(orderItem);
                 newOrder.setTotalPrice(newOrder.getTotalPrice() + product.getPrice()); // Ažuriranje ukupne cijene
                 product.setQuantity(product.getQuantity() - 1);
+                if (product.getQuantity() < 1 || product.getValidTo().before(new Date())) {
+                    product.setActive(false);
+                    productRepository.save(product);   //kroz manje metode
+                }
                 productRepository.save(product);
             }
         }
@@ -108,10 +114,6 @@ public class OrderService {
         return newOrder;
     }
 
-
-    public void printOrdersInCSVFormat() {
-
-    }
 
     public void printAllOrdersForCustomer(User user) {
         List<Order> orders = orderRepository.findOrdersByUser(user);
@@ -136,19 +138,30 @@ public class OrderService {
         orderDTO.setRegisterDate(order.getRegisterDate());
         orderDTO.setTotalPrice(order.getTotalPrice());
         orderDTO.setOrderItemDTOList(convertToOrderItemDTOList(order.getOrderItems()));
+        orderDTO.setUser(userService.convertToUserDTO(order.getUser()));
         return orderDTO;
     }
 
+
     private List<OrderItemDTO> convertToOrderItemDTOList(List<OrderItem> orderItems) {
         return orderItems.stream()
-                .map(this::convertToOrderItemDTO)
+                .map(orderItem -> {
+                    OrderItemDTO orderItemDTO = new OrderItemDTO();
+                    orderItemDTO.setId(orderItem.getOrderItem_id());
+
+                    // Konvertujte proizvod u ProductDTO i postavite ga u OrderItemDTO
+                    ProductDTO productDTO = productService.convertToProductDTO(orderItem.getProduct());
+                    orderItemDTO.setProduct(productDTO);
+
+                    return orderItemDTO;
+                })
                 .collect(Collectors.toList());
     }
 
     private OrderItemDTO convertToOrderItemDTO(OrderItem orderItem) {
         OrderItemDTO orderItemDTO = new OrderItemDTO();
         orderItemDTO.setId(orderItem.getOrderItem_id());
-        orderItemDTO.setProduct(orderItem.getProduct());
+        orderItemDTO.setProduct(productService.convertToProductDTO(orderItem.getProduct()));
         return orderItemDTO;
     }
 

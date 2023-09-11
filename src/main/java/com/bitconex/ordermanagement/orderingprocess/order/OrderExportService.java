@@ -25,7 +25,7 @@ public class OrderExportService {
 
     private static final Logger logger = LoggerFactory.getLogger(OrderExportService.class);
 
-    public boolean exportOrdersToCsv(String directoryPath, String fileName) {
+    public void exportOrdersToCsv(String directoryPath, String fileName) {
         try {
             if (!fileName.endsWith(".csv")) {
                 fileName += ".csv";
@@ -36,7 +36,7 @@ public class OrderExportService {
             Path path = Paths.get(filePath).getParent();
             if (Files.notExists(path) || !Files.isWritable(path)) {
                 logger.error("Unable to access or write to directory: " + path);
-                return false;
+                return;
             }
 
             List<OrderDTO> orders = orderService.getOrdersDTO();
@@ -53,6 +53,8 @@ public class OrderExportService {
                         // istakne koji order je u pitanju
                         String boldOrderId = "Order ID: " + order.getId();
                         csvPrinter.printRecord(boldOrderId);
+                        String customer = "Customer: " + order.getUser().getUserName();
+                        csvPrinter.printRecord(customer);
 
                         currentOrderId = String.valueOf(order.getId());
                     }
@@ -60,15 +62,14 @@ public class OrderExportService {
                     for (OrderItemDTO orderItem : order.getOrderItemDTOList()) {
                         csvPrinter.printRecord("", orderItem.getProduct().getName(), orderItem.getProduct().getPrice());
                     }
+
                     csvPrinter.printRecord("Total Price:", "", order.getTotalPrice());
                 }
                 csvPrinter.flush();
             }
             logger.info("Orders have been successfully exported to a CSV file: " + filePath);
-            return true;
         } catch (IOException e) {
             logger.error("Error when exporting orders to CSV file.", e);
-            return false;
         }
     }
 }
