@@ -53,7 +53,7 @@ public class OrderManagementApplication implements CommandLineRunner {
 		LOG.info("EXECUTING: Order Managemenet Application!");
 		User user = userLogIn();
 		System.out.println("------------------------------------------------------------------------------------------");
-		System.out.println("You have successfully logged in! Welcome " + user.getUserName());
+		System.out.println("You have successfully logged in! Welcome " + user.getUsername());
 		System.out.println("------------------------------------------------------------------------------------------");
 		if(user.getRole().equals(UserRole.ADMIN)){
 			// A D M I N I S T R A C I J A
@@ -313,7 +313,7 @@ public class OrderManagementApplication implements CommandLineRunner {
 			password = t.next();
 			user.setUserName(userName);
 			user.setPassword(password);
-			optionalUser = userRepository.findUserByUserName(userName);
+			optionalUser = userRepository.findUserByUserName(userName); //TREBA HASHIRAT PW, treba izdvojit u metodu
 			if(optionalUser.isPresent() && password.equals(optionalUser.get().getPassword())) i=i+1;
 		} while (i==0);
 		return optionalUser.get();

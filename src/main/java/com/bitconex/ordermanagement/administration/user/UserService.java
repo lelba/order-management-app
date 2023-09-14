@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -17,6 +18,9 @@ public class UserService {
     private final UserRepository userRepository;
     private final ObjectMapper objectMapper;
     private final AddressRepository addressRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     public UserService(UserRepository userRepository, ObjectMapper objectMapper, AddressRepository addressRepository) {
@@ -44,14 +48,16 @@ public class UserService {
 
 
     public void addNewUser(User user) {
-        Optional<User> appUserOptional = userRepository.findUserByUserName(user.getUserName());
+        Optional<User> appUserOptional = userRepository.findUserByUserName(user.getUsername());
         if (appUserOptional.isPresent()) {
             throw new IllegalStateException("Username taken!");
         }
-        if(user.getRole().equals(UserRole.CUSTOMER)){
-            Address address = new Address();
-            addressRepository.save(address);
-        } //provjeriti ?????
+//        if(user.getRole().equals(UserRole.CUSTOMER)){
+////            Address address = new Address();
+////            addressRepository.save(address);
+//        } //provjeriti ?????
+        String encodedPw = passwordEncoder.encode(user.getPassword());
+        user.setPassword(encodedPw);
         userRepository.save(user);
     }
 
@@ -80,7 +86,7 @@ public class UserService {
 
     public UserDTO convertToUserDTO(User user) {
         UserDTO userDTO = new UserDTO();
-        userDTO.setUserName(user.getUserName());
+        userDTO.setUserName(user.getUsername());
         userDTO.setId(user.getId());
         userDTO.setEmail(user.getEmail());
         return userDTO;
@@ -89,7 +95,7 @@ public class UserService {
     public AdminDTO convertToAdminDTO(User user) {
         AdminDTO adminDTO = new AdminDTO();
         adminDTO.setId(user.getId());
-        adminDTO.setUserName(user.getUserName());
+        adminDTO.setUserName(user.getUsername());
         adminDTO.setEmail(user.getEmail());
         return adminDTO;
     }
@@ -97,7 +103,7 @@ public class UserService {
     public CustomerDTO convertToCustomerDTO(User user) {
         CustomerDTO customerDTO = new CustomerDTO();
         customerDTO.setId(user.getId());
-        customerDTO.setUserName(user.getUserName());
+        customerDTO.setUserName(user.getUsername());
         customerDTO.setEmail(user.getEmail());
         customerDTO.setName(user.getName());
         customerDTO.setSurname(user.getSurname());
