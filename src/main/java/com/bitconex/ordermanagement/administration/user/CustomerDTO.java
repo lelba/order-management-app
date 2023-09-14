@@ -15,7 +15,7 @@ public class CustomerDTO {
     private String email;
     private String name;
     private String surname;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date dateOfBirth;
     private AddressDTO addressDTO;
 }

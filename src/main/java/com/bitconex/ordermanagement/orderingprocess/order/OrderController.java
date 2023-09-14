@@ -22,12 +22,12 @@ public class OrderController {
         this.orderExportService = orderExportService;
     }
 
-    @GetMapping("/getOrders")
+    @GetMapping()
     public List<OrderDTO> getOrders() {
         return orderService.getOrders();
     }
 
-    @PostMapping("/addNewOrder")
+    @PostMapping("/add")
     public void addNewOrder(@RequestBody User user) {
         orderService.addNewOrder(user);
     }

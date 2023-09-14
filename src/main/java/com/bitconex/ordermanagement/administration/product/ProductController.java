@@ -16,18 +16,18 @@ public class ProductController {
         this.productService = productService;
     }
 
-    @GetMapping("/getProducts")
+    @GetMapping()
     public List<ProductDTO> getProducts(){
         return productService.getProducts();
     }
 
-    @PostMapping("/addNewProduct")
+    @PostMapping("/add")
     public void addNewProduct(@RequestBody Product product) {
         productService.addNewProduct(product);
     }
 
     @Transactional
-    @DeleteMapping("/deleteProduct/{name}")
+    @DeleteMapping("/{name}")
     public void deleteProduct(@PathVariable String name) {
         productService.deleteProductByName_setNotActive(name);
     }
