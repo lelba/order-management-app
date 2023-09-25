@@ -53,7 +53,7 @@ public class OrderExportService {
                         // istakne koji order je u pitanju
                         String boldOrderId = "Order ID: " + order.getId();
                         csvPrinter.printRecord(boldOrderId);
-                        String customer = "Customer: " + order.getUser().getUserName();
+                        String customer = "Customer: " + order.getUser().getUsername();
                         csvPrinter.printRecord(customer);
 
                         currentOrderId = String.valueOf(order.getId());

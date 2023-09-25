@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -26,7 +27,7 @@ import java.util.Scanner;
 public class OrderManagementApplication implements CommandLineRunner {
 
 	@Autowired
-	public UserRepository userRepository;
+    public UserRepository userRepository;
 	@Autowired
 	public UserService userService;
 	@Autowired
@@ -43,18 +44,18 @@ public class OrderManagementApplication implements CommandLineRunner {
 	private static final Logger LOG = LoggerFactory.getLogger(OrderManagementApplication.class);
 
 	public static void main(String[] args) {
-		LOG.info("STARTING: Order Managemenet Application!");
+		LOG.info("STARTING: Order Management Application!");
 		SpringApplication.run(OrderManagementApplication.class, args);
-		LOG.info("STOPPED: Order Managemenet Application!");
+		LOG.info("STOPPED: Order Management Application!");
 	}
 
 	@Override
-	public void run(String... args) throws Exception {
-		LOG.info("EXECUTING: Order Managemenet Application!");
+	public void run(String... args) {
+		LOG.info("EXECUTING: Order Management Application!");
 		User user = userLogIn();
-		System.out.println("------------------------------------------------------------------------------------------");
+		System.out.println("---------------------------------------------------------------");
 		System.out.println("You have successfully logged in! Welcome " + user.getUsername());
-		System.out.println("------------------------------------------------------------------------------------------");
+		System.out.println("---------------------------------------------------------------");
 		if(user.getRole().equals(UserRole.ADMIN)){
 			// A D M I N I S T R A C I J A
 			System.out.println("You are ADMIN...");
@@ -99,17 +100,13 @@ public class OrderManagementApplication implements CommandLineRunner {
 				if (s.hasNextInt()) {
 					int choice = s.nextInt();
 					switch (choice) {
-						case 1:
-							listOfAllOrdersForCustomer(user);
-							break;
-						case 2:
-							startNewOrder(user);
-							break;
-						case 0:
+						case 1 -> listOfAllOrdersForCustomer(user);
+						case 2 -> startNewOrder(user);
+						case 0 -> {
 							System.out.println("Exiting...");
 							return;
-						default:
-							System.out.println("Invalid selection. Please select again.");
+						}
+						default -> System.out.println("Invalid selection. Please select again.");
 					}
 				} else {
 					System.out.println("Invalid input. Please enter a valid integer.");
@@ -146,20 +143,14 @@ public class OrderManagementApplication implements CommandLineRunner {
 			if (s.hasNextInt()) {
 				int choice = s.nextInt();
 				switch (choice) {
-					case 1:
-						addNewProduct();
-						break;
-					case 2:
-						listOfAllProducts();
-						break;
-					case 3:
-						deleteProduct();
-						break;
-					case 0:
+					case 1 -> addNewProduct();
+					case 2 -> listOfAllProducts();
+					case 3 -> deleteProduct();
+					case 0 -> {
 						System.out.println("Exiting...");
 						return;
-					default:
-						System.out.println("Invalid selection. Please select again.");
+					}
+					default -> System.out.println("Invalid selection. Please select again.");
 				}
 			} else {
 				System.out.println("Invalid input. Please enter a valid integer.");
@@ -168,52 +159,15 @@ public class OrderManagementApplication implements CommandLineRunner {
 	}
 
 	private void deleteProduct() {
-		while(true) {
-			System.out.println("Choose an option: ");
-			System.out.println("1. Delete product by name: ");
-			System.out.println("2. Delete all products that are out of stock: ");
-			System.out.println("3. Delete all products that are no longer available: ");
-			System.out.println("0. Exit");
-
-			Scanner s = new Scanner(System.in);
-			if (s.hasNextInt()) {
-				int choice = s.nextInt();
-				switch (choice) {
-					case 1:
-						deleteProductByName();
-						break;
-					case 2:
-						deleteProductsOutOfStock();
-						break;
-					case 3:
-						deleteNoAvailableProducts();
-						break;
-					case 0:
-						System.out.println("Exiting...");
-						return;
-					default:
-						System.out.println("Invalid selection. Please select again.");
-				}
-			} else {
-				System.out.println("Invalid input. Please enter a valid integer.");
-			}
-		}
-	}
-	private void deleteNoAvailableProducts() {
-
-		productService.deleteProductsNoLongerAvailable();
-		System.out.println("Deleted products that are no longer available!");
-	}
-
-	private void deleteProductsOutOfStock() {
-		productService.deleteProductsOutOfStock();
-		System.out.println("Deleted products that are out of stock!");
-	}
-
-	private void deleteProductByName() {
 		System.out.println("Please enter name of product: ");
 		String name = scanner();
-		productService.deleteProductByName_setNotActive(name);
+		try {
+			productService.deleteProductByName_setNotActive(name);
+			LOG.info("Product successfully deleted.");
+		} catch (IllegalStateException e) {
+			System.out.println("There is no product with that name!");
+		}
+
 	}
 	private void listOfAllProducts() {
 		productService.printAllProducts();
@@ -224,13 +178,12 @@ public class OrderManagementApplication implements CommandLineRunner {
 		System.out.println("Please enter name of product: ");
 		String name = scanner();
 		product.setName(name);
-		Double price = null;
 		Scanner s;
 		do {
 			System.out.println("Please enter price: ");
 			s = new Scanner(System.in);
 		} while(!s.hasNextDouble());
-		price = s.nextDouble();
+		double price = s.nextDouble();
 		product.setPrice(price);
 		do {
 			System.out.println("Please enter valid from (yyyy-MM-dd): ");
@@ -276,20 +229,14 @@ public class OrderManagementApplication implements CommandLineRunner {
 			if (s.hasNextInt()) {
 				int choice = s.nextInt();
 				switch (choice) {
-					case 1:
-						addNewUser();
-						break;
-					case 2:
-						deleteExistingUser();
-						break;
-					case 3:
-						listOfAllUsers();
-						break;
-					case 0:
+					case 1 -> addNewUser();
+					case 2 -> deleteExistingUser();
+					case 3 -> listOfAllUsers();
+					case 0 -> {
 						System.out.println("Exiting...");
 						return;
-					default:
-						System.out.println("Invalid selection. Please select again.");
+					}
+					default -> System.out.println("Invalid selection. Please select again.");
 				}
 			} else {
 				System.out.println("Invalid input. Please enter a valid integer.");
@@ -302,20 +249,29 @@ public class OrderManagementApplication implements CommandLineRunner {
 		User user = new User();
 		Optional<User> optionalUser;
 		int i = 0;
+		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
 		do {
 			System.out.println("Enter username: ");
 			String userName;
 			Scanner s = new Scanner(System.in);
 			userName = s.next();
+
 			System.out.println("Enter password: ");
 			String password;
 			Scanner t = new Scanner(System.in);
 			password = t.next();
+
 			user.setUserName(userName);
 			user.setPassword(password);
-			optionalUser = userRepository.findUserByUserName(userName); //TREBA HASHIRAT PW, treba izdvojit u metodu
-			if(optionalUser.isPresent() && password.equals(optionalUser.get().getPassword())) i=i+1;
-		} while (i==0);
+
+			optionalUser = userRepository.findUserByUserName(userName);
+
+			if (optionalUser.isPresent() && passwordEncoder.matches(password, optionalUser.get().getPassword())) {
+				i = 1;
+			}
+		} while (i == 0);
+
 		return optionalUser.get();
 	}
 
@@ -326,19 +282,16 @@ public class OrderManagementApplication implements CommandLineRunner {
 		if (s.hasNextInt()) {
 			int choice = s.nextInt();
 			switch (choice) {
-				case 1:
+				case 1 -> {
 					User auser = addUser();
 					addNewAdmin(auser);
-					break;
-				case 2:
+				}
+				case 2 -> {
 					User cuser = addUser();
 					addNewCustomer(cuser);
-					break;
-				case 0:
-					System.out.println("Exiting...");
-					return;
-				default:
-					System.out.println("Invalid selection. Please select again.");
+				}
+				case 0 -> System.out.println("Exiting...");
+				default -> System.out.println("Invalid selection. Please select again.");
 			}
 		} else {
 			System.out.println("Invalid input. Please enter a valid integer.");
@@ -428,7 +381,7 @@ public class OrderManagementApplication implements CommandLineRunner {
 
 
 	public void deleteExistingUser() {
-		System.out.println("DELETING USER: Please enter username: ");
+		System.out.println("DELETING USER... Please enter username: ");
 		String userName = scanner();
 		try {
 			userService.deleteUser(userName);

@@ -5,6 +5,8 @@ import com.bitconex.ordermanagement.orderingprocess.order.OrderRepository;
 import com.bitconex.ordermanagement.orderingprocess.orderitem.OrderItem;
 import com.bitconex.ordermanagement.orderingprocess.orderitem.OrderItemRepository;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +23,7 @@ public class ProductService {
     private final OrderItemRepository orderItemRepository;
 
     private final OrderRepository orderRepository;
+    private static final Logger LOG = LoggerFactory.getLogger(ProductService.class);
     @Autowired
     public ProductService(ProductRepository productRepository, OrderItemRepository orderItemRepository, OrderRepository orderRepository) {
         this.productRepository = productRepository;
@@ -29,7 +32,7 @@ public class ProductService {
     }
 
     public List<ProductDTO> getProducts() {
-        List<Product> products = productRepository.findAll();
+        List<Product> products = productRepository.findAllByActiveIsTrueAndValidToIsAfter(new Date());
         List<ProductDTO> productDTOS = new ArrayList<>();
         for(Product product : products) {
             ProductDTO productDTO = convertToProductDTO(product);
@@ -53,13 +56,13 @@ public class ProductService {
         Product product = productRepository.findProductByName(newProduct.getName()).orElse(null);
         if (product != null) {
             throw new IllegalStateException("Product already existing!");
-            } else
-                newProduct.setActive(true);
-                productRepository.save(newProduct);
+            } else {
+            newProduct.setActive(true);
+            productRepository.save(newProduct);
+        }
     }
 
     @Transactional
-    //soft delete
     public void deleteProductByName_setNotActive(String name) {
         Product product = productRepository.findProductByName(name).orElse(null);
         if(product == null) {
@@ -68,24 +71,20 @@ public class ProductService {
             if (product.isActive()) {
                 product.setActive(false);
                 productRepository.save(product);
-            } else {  //trebam implementirat kaskadno brisanje
-                System.out.println("Do you want for sure to delete product? ");
+            } else {
+                LOG.info("Deleting product from database...");
                 List<OrderItem> orderItems = product.getOrderItems();
-//                for (OrderItem orderItem : orderItems) {
-//                    Order order = orderItem.getOrder();
-//                    orderItemRepository.deleteOrderItemByOrderItem_id(orderItem.getOrderItem_id());
-//
-//                    // Ako više nema drugih stavki u narudžbini, obrišite i samu narudžbinu
-//                    if (order.getOrderItems().isEmpty()) {
-//                        orderRepository.delete(order);
-//                    }
-//                }
-                productRepository.delete(product); //ako je false a ima ga jos na orderima?
+                for (OrderItem orderItem : orderItems) {
+                    Order order = orderItem.getOrder();
+                    orderItemRepository.deleteOrderItemByOrderItem_id(orderItem.getOrderItem_id());
+                    if (order.getOrderItems().isEmpty()) {
+                        orderRepository.delete(order);
+                    }
+                }
+                productRepository.delete(product);
             }
         }
     }
-
-
 
     public void printAllProducts() {
         List<Product> products = productRepository.findAllByActiveIsTrueAndValidToIsAfter(new Date());
@@ -106,15 +105,14 @@ public class ProductService {
         System.out.println("----------------------------------------------------------------------");
     }
 
-
-    @Transactional
-    public void deleteProductsOutOfStock() {
-        productRepository.deleteProductsOutOfStock();
+    public void updateProductQuantityAndActive(Product product) {
+        product.setQuantity(product.getQuantity() - 1);
+        if(product.getQuantity() < 1 || product.getValidTo().before(new Date())) {
+            product.setActive(false);
+        }
+        productRepository.save(product);
     }
 
-    public void deleteProductsNoLongerAvailable() {
-        productRepository.deleteExpiredProducts();
-    }
 }
 
 
