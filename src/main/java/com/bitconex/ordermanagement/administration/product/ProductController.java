@@ -2,6 +2,7 @@ package com.bitconex.ordermanagement.administration.product;
 
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,8 +18,8 @@ public class ProductController {
     }
 
     @GetMapping()
-    public List<ProductDTO> getProducts(){
-        return productService.getProducts();
+    public ResponseEntity<List<ProductDTO>> getProducts(){
+        return ResponseEntity.ok(productService.getProducts());
     }
 
     @PostMapping("/add")

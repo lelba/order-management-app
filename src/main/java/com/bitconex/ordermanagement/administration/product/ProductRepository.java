@@ -27,8 +27,5 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("DELETE FROM Product p WHERE p.validTo < CURRENT_DATE")
     void deleteExpiredProducts();
 
-   @Query("SELECT p FROM Product p WHERE p.active = true")
-    List<Product> findProductByActiveTrue();
-
     List<Product> findAllByActiveIsTrueAndValidToIsAfter(Date localDate);
 }

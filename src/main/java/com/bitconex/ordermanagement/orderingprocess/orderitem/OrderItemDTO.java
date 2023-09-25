@@ -1,6 +1,5 @@
 package com.bitconex.ordermanagement.orderingprocess.orderitem;
 
-import com.bitconex.ordermanagement.administration.product.Product;
 import com.bitconex.ordermanagement.administration.product.ProductDTO;
 import lombok.Getter;
 import lombok.Setter;

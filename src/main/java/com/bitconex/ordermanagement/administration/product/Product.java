@@ -1,7 +1,6 @@
 package com.bitconex.ordermanagement.administration.product;
 
 import com.bitconex.ordermanagement.orderingprocess.orderitem.OrderItem;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
 

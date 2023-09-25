@@ -5,6 +5,7 @@ import com.bitconex.ordermanagement.administration.product.ProductDTO;
 import com.bitconex.ordermanagement.administration.product.ProductRepository;
 import com.bitconex.ordermanagement.administration.product.ProductService;
 import com.bitconex.ordermanagement.administration.user.User;
+import com.bitconex.ordermanagement.administration.user.UserRole;
 import com.bitconex.ordermanagement.administration.user.UserService;
 import com.bitconex.ordermanagement.orderingprocess.orderitem.OrderItem;
 import com.bitconex.ordermanagement.orderingprocess.orderitem.OrderItemDTO;
@@ -78,38 +79,30 @@ public class OrderService {
             totalPrice += product.getPrice();
         }
         System.out.println("--------------------------------");
-        System.out.printf("Total Price:       || %.2f  || %n", totalPrice);
+        System.out.printf("Total Price:       || %.2f || %n", totalPrice);
         System.out.println("--------------------------------");
     }
 
     @Transactional
     public Order createAndAddProductsToOrder(User user) {
-        Order newOrder = new Order();
-        newOrder.setUser(user);
-        newOrder.setRegisterDate(LocalDateTime.now());
-        newOrder.setTotalPrice(0.0);
+        Order newOrder = createNewOrder(user);
 
         Scanner scanner = new Scanner(System.in);
         List<Product> availableProducts = productRepository.findAllByActiveIsTrueAndValidToIsAfter(new Date());
         List<OrderItem> orderItems = new ArrayList<>();
+        double totalPrice = 0.0;
         for (Product product : availableProducts) {
-            System.out.printf("Add product '%s' to the order? (y/n): ", product.getName()); //plus cjena
+            System.out.printf("Add product '%s' to the order? (y/n): ", product.getName());
+            System.out.printf("Price: '%s': ", product.getPrice());
             String choice = scanner.next();
             if ("y".equalsIgnoreCase(choice)) {
-                OrderItem orderItem = new OrderItem();
-                orderItem.setOrder(newOrder);
-                orderItem.setProduct(product);
-
+                OrderItem orderItem =createOrderItem(newOrder, product);
                 orderItems.add(orderItem);
-                newOrder.setTotalPrice(newOrder.getTotalPrice() + product.getPrice()); // Ažuriranje ukupne cijene
-                product.setQuantity(product.getQuantity() - 1);
-                if (product.getQuantity() < 1 || product.getValidTo().before(new Date())) {
-                    product.setActive(false);
-                    productRepository.save(product);   //kroz manje metode
-                }
-                productRepository.save(product);
+                totalPrice += product.getPrice();
+                productService.updateProductQuantityAndActive(product);
             }
         }
+        newOrder.setTotalPrice(totalPrice);
         newOrder.setOrderItems(orderItems);
         return newOrder;
     }
@@ -138,7 +131,7 @@ public class OrderService {
         orderDTO.setRegisterDate(order.getRegisterDate());
         orderDTO.setTotalPrice(order.getTotalPrice());
         orderDTO.setOrderItemDTOList(convertToOrderItemDTOList(order.getOrderItems()));
-        orderDTO.setUser(userService.convertToUserDTO(order.getUser()));
+        orderDTO.setUser(userService.convertToCustomerDTO(order.getUser()));
         return orderDTO;
     }
 
@@ -158,13 +151,6 @@ public class OrderService {
                 .collect(Collectors.toList());
     }
 
-    private OrderItemDTO convertToOrderItemDTO(OrderItem orderItem) {
-        OrderItemDTO orderItemDTO = new OrderItemDTO();
-        orderItemDTO.setId(orderItem.getOrderItem_id());
-        orderItemDTO.setProduct(productService.convertToProductDTO(orderItem.getProduct()));
-        return orderItemDTO;
-    }
-
     public List<OrderDTO> getOrdersDTO() {
         List<Order> orders = orderRepository.findAll();
         List<OrderDTO> orderDTOs = new ArrayList<>();
@@ -176,4 +162,39 @@ public class OrderService {
 
         return orderDTOs;
     }
+
+    @Transactional
+    public Order createOrder(User user, List<Product> products) {
+
+        Order newOrder = createNewOrder(user);
+        List<OrderItem> orderItems = new ArrayList<>();
+        double totalPrice = 0.0;
+        for (Product product : products) {
+            OrderItem orderItem = createOrderItem(newOrder, product);
+            orderItems.add(orderItem);
+            totalPrice += product.getPrice();
+            productService.updateProductQuantityAndActive(product);
+        }
+        newOrder.setTotalPrice(totalPrice);
+        newOrder.setOrderItems(orderItems);
+        orderRepository.save(newOrder);
+
+        return newOrder;
+    }
+
+    private Order createNewOrder(User user) {
+        Order newOrder = new Order();
+        newOrder.setUser(user);
+        newOrder.setRegisterDate(LocalDateTime.now());
+        newOrder.setTotalPrice(0.0);
+        return newOrder;
+    }
+
+    private OrderItem createOrderItem(Order order, Product product) {
+        OrderItem orderItem = new OrderItem();
+        orderItem.setOrder(order);
+        orderItem.setProduct(product);
+        return orderItem;
+    }
+
 }

@@ -1,7 +1,7 @@
 package com.bitconex.ordermanagement.administration.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,8 +18,8 @@ public class UserController {
     }
 
     @GetMapping()
-    public List<Object> getUsers() {
-        return userService.getUsers();
+    public ResponseEntity<List<Object>> getUsers() {
+        return ResponseEntity.ok(userService.getUsers());
     }
 
     @PostMapping("/add")
@@ -27,7 +27,7 @@ public class UserController {
         userService.addNewUser(user);
     }
 
-    @DeleteMapping("/{userName}")  //brisanje korisika koji nema narudzbu
+    @DeleteMapping("/{userName}")
     public void deleteUser(@PathVariable String userName) {
         userService.deleteUser(userName);
     }

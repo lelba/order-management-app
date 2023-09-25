@@ -1,11 +1,13 @@
 package com.bitconex.ordermanagement.administration.user;
 
+import com.bitconex.ordermanagement.orderingprocess.order.Order;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -64,6 +66,12 @@ public class User implements UserDetails {
             name = "DOB"
     )
     private Date dateOfBirth;
+
+    @Column(
+            name = "ACTIVE",
+            columnDefinition = "boolean default true"
+    )
+    private boolean active;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "address_id")
