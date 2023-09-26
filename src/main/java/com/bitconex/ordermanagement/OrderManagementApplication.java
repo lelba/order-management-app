@@ -1,11 +1,9 @@
 package com.bitconex.ordermanagement;
 
 import com.bitconex.ordermanagement.administration.product.Product;
-import com.bitconex.ordermanagement.administration.product.ProductRepository;
 import com.bitconex.ordermanagement.administration.product.ProductService;
 import com.bitconex.ordermanagement.administration.user.*;
 import com.bitconex.ordermanagement.orderingprocess.order.OrderExportService;
-import com.bitconex.ordermanagement.orderingprocess.order.OrderRepository;
 import com.bitconex.ordermanagement.orderingprocess.order.OrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,104 +11,106 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Optional;
 import java.util.Scanner;
 
 
 @SpringBootApplication
 public class OrderManagementApplication implements CommandLineRunner {
 
-	@Autowired
     public UserRepository userRepository;
-	@Autowired
 	public UserService userService;
-	@Autowired
 	public ProductService productService;
-	@Autowired
-	public ProductRepository productRepository;
-	@Autowired
 	public OrderService orderService;
-	@Autowired
-	public OrderRepository orderRepository;
-	@Autowired
 	public OrderExportService orderExportService;
+	public UserAuthenticationService userAuthenticationService;
+
+	@Autowired
+	public OrderManagementApplication(UserRepository userRepository, UserService userService, ProductService productService, OrderService orderService, OrderExportService orderExportService, UserAuthenticationService userAuthenticationService) {
+		this.userRepository = userRepository;
+		this.userService = userService;
+		this.productService = productService;
+		this.orderService = orderService;
+		this.orderExportService = orderExportService;
+		this.userAuthenticationService = userAuthenticationService;
+	}
 
 	private static final Logger LOG = LoggerFactory.getLogger(OrderManagementApplication.class);
 
 	public static void main(String[] args) {
-		LOG.info("STARTING: Order Management Application!");
 		SpringApplication.run(OrderManagementApplication.class, args);
-		LOG.info("STOPPED: Order Management Application!");
 	}
 
 	@Override
 	public void run(String... args) {
-		LOG.info("EXECUTING: Order Management Application!");
-		User user = userLogIn();
-		System.out.println("---------------------------------------------------------------");
-		System.out.println("You have successfully logged in! Welcome " + user.getUsername());
-		System.out.println("---------------------------------------------------------------");
+		LOG.info("STARTING: Order Management Application!");
+
+		System.out.println("Welcome to Order Management Application!");
+		User user = userAuthenticationService.logInUser();
+		LOG.info("User successfully logged in: {}", user.getUsername());
+
 		if(user.getRole().equals(UserRole.ADMIN)){
-			// A D M I N I S T R A C I J A
-			System.out.println("You are ADMIN...");
-			System.out.println("STARTING: Administration!");
-			while(true) {
-				System.out.println("Choose an option: ");
-				System.out.println("1. User-Administration");
-				System.out.println("2. Product Catalog");
-				System.out.println("3. List of all orders");
-				System.out.println("0. Exit");
-
-				Scanner s = new Scanner(System.in);
-				if (s.hasNextInt()) {
-					int choice = s.nextInt();
-					switch (choice) {
-						case 1 -> userAdministration();
-						case 2 -> productCatalog();
-						case 3 -> listOfAllOrders();
-						case 0 -> {
-							System.out.println("Exiting...");
-							return;
-						}
-						default -> System.out.println("Invalid selection. Please select again.");
-					}
-				} else {
-					System.out.println("Invalid input. Please enter a valid integer.");
-				}
-			}
-
+			adminMenu();
 		}
 		else {
-			// N A R U DŽ B E N I  P R O C E S
-			System.out.println("You are CUSTOMER...");
-			System.out.println("STARTING: Ordering process!");
-			while(true) {
-				System.out.println("Choose an option: ");
-				System.out.println("1. List of orders for customer ");
-				System.out.println("2. Start new order ");
-				System.out.println("0. Exit");
+			customerMenu(user);
+		}
+	}
 
-				Scanner s = new Scanner(System.in);
-				if (s.hasNextInt()) {
-					int choice = s.nextInt();
-					switch (choice) {
-						case 1 -> listOfAllOrdersForCustomer(user);
-						case 2 -> startNewOrder(user);
-						case 0 -> {
-							System.out.println("Exiting...");
-							return;
-						}
-						default -> System.out.println("Invalid selection. Please select again.");
+	private void adminMenu() {
+		LOG.info("Admin user logged in.");
+		while (true) {
+			System.out.println("Choose an option: ");
+			System.out.println("1. User Administration");
+			System.out.println("2. Product Catalog");
+			System.out.println("3. List of all orders");
+			System.out.println("0. Exit");
+
+			Scanner scanner = new Scanner(System.in);
+			if (scanner.hasNextInt()) {
+				int choice = scanner.nextInt();
+				switch (choice) {
+					case 1 -> userAdministration();
+					case 2 -> productCatalog();
+					case 3 -> listOfAllOrders();
+					case 0 -> {
+						LOG.info("Exiting...");
+						return;
 					}
-				} else {
-					System.out.println("Invalid input. Please enter a valid integer.");
+					default -> System.out.println("Invalid selection. Please select again.");
 				}
+			} else {
+				System.out.println("Invalid input. Please enter a valid integer.");
+			}
+		}
+	}
+
+	private void customerMenu(User user) {
+		LOG.info("Customer user logged in.");
+		while (true) {
+			System.out.println("Choose an option: ");
+			System.out.println("1. List of orders for customer");
+			System.out.println("2. Start new order");
+			System.out.println("0. Exit");
+
+			Scanner scanner = new Scanner(System.in);
+			if (scanner.hasNextInt()) {
+				int choice = scanner.nextInt();
+				switch (choice) {
+					case 1 -> listOfAllOrdersForCustomer(user);
+					case 2 -> startNewOrder(user);
+					case 0 -> {
+						LOG.info("Exiting...");
+						return;
+					}
+					default -> System.out.println("Invalid selection. Please select again.");
+				}
+			} else {
+				System.out.println("Invalid input. Please enter a valid integer.");
 			}
 		}
 	}
@@ -244,40 +244,11 @@ public class OrderManagementApplication implements CommandLineRunner {
 		}
 	}
 
-	public User userLogIn() {
-		System.out.println("Welcome to Order Management Application!");
-		User user = new User();
-		Optional<User> optionalUser;
-		int i = 0;
-		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-
-		do {
-			System.out.println("Enter username: ");
-			String userName;
-			Scanner s = new Scanner(System.in);
-			userName = s.next();
-
-			System.out.println("Enter password: ");
-			String password;
-			Scanner t = new Scanner(System.in);
-			password = t.next();
-
-			user.setUserName(userName);
-			user.setPassword(password);
-
-			optionalUser = userRepository.findUserByUserName(userName);
-
-			if (optionalUser.isPresent() && passwordEncoder.matches(password, optionalUser.get().getPassword())) {
-				i = 1;
-			}
-		} while (i == 0);
-
-		return optionalUser.get();
-	}
-
-
 	public void addNewUser(){
-		System.out.println("ADDING NEW USER: Select 1 to add ADMIN_user or 2 to add CUSTOMER_user. If you want to exit select 0:");
+		System.out.println("Choose an option: ");
+		System.out.println("1. Add Admin user");
+		System.out.println("2. Add Customer user");
+		System.out.println("0. Exit");
 		Scanner s = new Scanner(System.in);
 		if (s.hasNextInt()) {
 			int choice = s.nextInt();
@@ -360,15 +331,7 @@ public class OrderManagementApplication implements CommandLineRunner {
 		return address;
 	}
 
-	Date scanToDate(String input) {
-		try (Scanner scanner = new Scanner(input)) {
-			String dateString = scanner.next();
-			DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-			return formatter.parse(dateString);
-		} catch (ParseException e) {
-			throw new RuntimeException("Incorrect date format!");
-		}
-	}
+
 	private void addNewAdmin(User user) {
 		user.setRole(UserRole.ADMIN);
 		try {
@@ -398,7 +361,15 @@ public class OrderManagementApplication implements CommandLineRunner {
 
 	public String scanner() {
 		Scanner s = new Scanner(System.in);
-		return s.next();   //nextLine
+		return s.nextLine();
 	}
-
+	Date scanToDate(String input) {
+		try (Scanner scanner = new Scanner(input)) {
+			String dateString = scanner.next();
+			DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+			return formatter.parse(dateString);
+		} catch (ParseException e) {
+			throw new RuntimeException("Incorrect date format!");
+		}
+	}
 }

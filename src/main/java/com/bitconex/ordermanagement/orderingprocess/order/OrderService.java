@@ -11,6 +11,7 @@ import com.bitconex.ordermanagement.orderingprocess.orderitem.OrderItem;
 import com.bitconex.ordermanagement.orderingprocess.orderitem.OrderItemDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -30,7 +31,7 @@ public class OrderService {
     private final ProductRepository productRepository;
     private final ObjectMapper objectMapper;
 
-
+    @Autowired
     public OrderService(OrderRepository orderRepository, ProductService productService, UserService userService, ProductRepository productRepository, ObjectMapper objectMapper) {
         this.orderRepository = orderRepository;
         this.productService = productService;
