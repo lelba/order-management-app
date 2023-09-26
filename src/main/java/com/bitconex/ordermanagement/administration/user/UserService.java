@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 
-@Transactional
+//@Transactional
 @Service
 public class UserService {
 
