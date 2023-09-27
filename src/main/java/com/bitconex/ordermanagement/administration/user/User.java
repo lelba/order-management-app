@@ -75,6 +75,9 @@ public class User implements UserDetails {
     @JoinColumn(name = "address_id")
     private Address address;
 
+    public User(UserRole userRole) {
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));

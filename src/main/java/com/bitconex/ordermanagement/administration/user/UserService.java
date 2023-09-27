@@ -2,7 +2,6 @@ package com.bitconex.ordermanagement.administration.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-
-//@Transactional
 @Service
 public class UserService {
 
@@ -35,6 +32,9 @@ public class UserService {
         List<User> users = userRepository.findAllByActiveIsTrue();
         List<Object> usersDto = new ArrayList<>();
 
+        if (users.isEmpty()) {
+            throw new IllegalArgumentException("There is no users in db!");
+        }
         for(User user : users) {
             if(UserRole.ADMIN.equals(user.getRole())) {
                 AdminDTO adminDTO = convertToAdminDTO(user);
@@ -52,6 +52,12 @@ public class UserService {
         Optional<User> appUserOptional = userRepository.findUserByUserName(user.getUsername());
         if (appUserOptional.isPresent()) {
             throw new IllegalStateException("Username taken!");
+        }
+        if (user.getUsername() == null) {
+            throw new IllegalArgumentException("Username must not be null!");
+        }
+        if(user.getPassword() == null) {
+            throw new IllegalArgumentException("Password must not be null!");
         }
         String encodedPw = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPw);

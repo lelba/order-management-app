@@ -33,6 +33,13 @@ public class ProductService {
 
     public List<ProductDTO> getProducts() {
         List<Product> products = productRepository.findAllByActiveIsTrueAndValidToIsAfter(new Date());
+        if (products.isEmpty()) {
+            throw new IllegalArgumentException("There is no available products!");
+        }
+        return convertToProductDTOs(products);
+    }
+
+    public List<ProductDTO> convertToProductDTOs(List<Product> products) {
         List<ProductDTO> productDTOS = new ArrayList<>();
         for(Product product : products) {
             ProductDTO productDTO = convertToProductDTO(product);
@@ -88,6 +95,9 @@ public class ProductService {
 
     public void printAllProducts() {
         List<Product> products = productRepository.findAllByActiveIsTrueAndValidToIsAfter(new Date());
+        if(products.isEmpty()) {
+            throw new IllegalArgumentException("There is no available products!");
+        }
         System.out.println("----------------------------------------------------------------------");
         System.out.println("ID    | Name       | Price    | Valid from   | Valid to     | Quantity");
         System.out.println("----------------------------------------------------------------------");

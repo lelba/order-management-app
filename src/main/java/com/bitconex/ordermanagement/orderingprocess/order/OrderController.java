@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -38,11 +37,6 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getOrders());
     }
 
-    @PostMapping()
-    public void addNewOrder(@RequestBody User user) {
-        orderService.addNewOrder(user);
-    }
-
     @PostMapping("/add")
     public ResponseEntity<OrderResponse> createOrder(@RequestBody List<Long> productIds, Principal principal) {
         User user = userRepository.findUserByUserName(principal.getName()).orElse(null);
@@ -55,18 +49,14 @@ public class OrderController {
             return ResponseEntity.badRequest().body(null);
         }
 
-        Order order = orderService.createOrder(user, products);
+        Order order = orderService.createAndSaveOrder(user, products);
 
         if (order == null) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
 
-        List<ProductDTO> dto = new ArrayList<>();
-        for(Product product : products) {
-            ProductDTO productDTO = productService.convertToProductDTO(product);
-            dto.add(productDTO);
-        }
-        OrderResponse orderResponse = new OrderResponse(dto, order.getTotalPrice());
+        List<ProductDTO> productDTOS = productService.convertToProductDTOs(products);
+        OrderResponse orderResponse = new OrderResponse(productDTOS, order.getTotalPrice());
         return ResponseEntity.ok(orderResponse);
     }
 

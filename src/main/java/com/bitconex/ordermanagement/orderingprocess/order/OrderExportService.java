@@ -15,13 +15,20 @@ import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class OrderExportService {
 
+    public OrderService orderService;
+    public OrderRepository orderRepository;
+
     @Autowired
-    OrderService orderService;
+    public OrderExportService(OrderService orderService, OrderRepository orderRepository) {
+        this.orderService = orderService;
+        this.orderRepository = orderRepository;
+    }
 
     private static final Logger logger = LoggerFactory.getLogger(OrderExportService.class);
 
@@ -39,7 +46,7 @@ public class OrderExportService {
                 return;
             }
 
-            List<OrderDTO> orders = orderService.getOrdersDTO();
+            List<OrderDTO> orders = getOrdersDTO();
             try (Writer writer = new FileWriter(filePath);
                  CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT
                          .withHeader("Order ID", "Product Name", "Product Price"))) {
@@ -72,4 +79,18 @@ public class OrderExportService {
             logger.error("Error when exporting orders to CSV file.", e);
         }
     }
+
+    private List<OrderDTO> getOrdersDTO() {
+        List<Order> orders = orderRepository.findAll();
+        List<OrderDTO> orderDTOs = new ArrayList<>();
+
+        for (Order order : orders) {
+            OrderDTO orderDTO = orderService.convertToOrderDTO(order);
+            orderDTOs.add(orderDTO);
+        }
+
+        return orderDTOs;
+    }
+
+
 }
