@@ -1,9 +1,12 @@
 package com.bitconex.ordermanagement;
 
 import com.bitconex.ordermanagement.administration.product.Product;
+import com.bitconex.ordermanagement.administration.product.ProductRepository;
 import com.bitconex.ordermanagement.administration.product.ProductService;
 import com.bitconex.ordermanagement.administration.user.*;
+import com.bitconex.ordermanagement.orderingprocess.order.Order;
 import com.bitconex.ordermanagement.orderingprocess.order.OrderExportService;
+import com.bitconex.ordermanagement.orderingprocess.order.OrderRepository;
 import com.bitconex.ordermanagement.orderingprocess.order.OrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +18,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Scanner;
 
 
@@ -28,9 +33,13 @@ public class OrderManagementApplication implements CommandLineRunner {
 	public OrderService orderService;
 	public OrderExportService orderExportService;
 	public UserAuthenticationService userAuthenticationService;
+	public ProductRepository productRepository;
+	public OrderRepository orderRepository;
 
 	@Autowired
-	public OrderManagementApplication(UserRepository userRepository, UserService userService, ProductService productService, OrderService orderService, OrderExportService orderExportService, UserAuthenticationService userAuthenticationService) {
+	public OrderManagementApplication(OrderRepository orderRepository, ProductRepository productRepository, UserRepository userRepository, UserService userService, ProductService productService, OrderService orderService, OrderExportService orderExportService, UserAuthenticationService userAuthenticationService) {
+		this.orderRepository = orderRepository;
+		this.productRepository = productRepository;
 		this.userRepository = userRepository;
 		this.userService = userService;
 		this.productService = productService;
@@ -116,11 +125,40 @@ public class OrderManagementApplication implements CommandLineRunner {
 	}
 
 	private void startNewOrder(User user) {
-		orderService.addNewOrder(user);
+		try {
+			List<Product> availableProducts = productRepository.findAllByActiveIsTrueAndValidToIsAfter(new Date());
+			List<Product> orderedProducts = new ArrayList<>();
+			Scanner scanner = new Scanner(System.in);
+			for (Product product : availableProducts) {
+				System.out.printf("Add product '%s' to the order? (y/n): ", product.getName());
+				System.out.printf("Price: '%s': ", product.getPrice());
+				String choice = scanner.next();
+				if ("y".equalsIgnoreCase(choice)) {
+					orderedProducts.add(product);
+				}
+			}
+			Order order = orderService.createOrder(user, orderedProducts);
+			System.out.println("Do you want to confirm the order? (y/n): ");
+			String choice = scanner();
+			if(choice.equals("y")) {
+				orderRepository.save(order);
+				System.out.println("Order confirmed and saved!");
+				orderService.printNewOrder(order);
+			}
+			else {
+				System.out.println("Order cancelled!");
+			}
+		} catch (Exception e) {
+			LOG.error(e.getMessage());
+		}
 	}
 
 	private void listOfAllOrdersForCustomer(User user) {
-		orderService.printAllOrdersForCustomer(user);
+		try {
+			orderService.printAllOrdersForCustomer(user);
+		} catch(Exception e) {
+			LOG.error("Exception: "+ e.getMessage(), e);
+		}
 	}
 
 	private void listOfAllOrders() {
@@ -356,7 +394,11 @@ public class OrderManagementApplication implements CommandLineRunner {
 	}
 
 	public void listOfAllUsers(){
-		userService.printAllUsersInJsonFormat();
+		try {
+			userService.printAllUsersInJsonFormat();
+		} catch (Exception e) {
+			LOG.error(e.getMessage());
+		}
 	}
 
 	public String scanner() {

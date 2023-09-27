@@ -16,13 +16,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Optional<Product> findProductByName(String name);
 
     @Modifying
-    @Query("DELETE FROM Product p WHERE p.quantity = 0")
-    void deleteProductsOutOfStock();
-
-    @Query("SELECT p FROM Product p WHERE p.validTo < CURRENT_DATE")
-    List<Product> findExpiredProducts();
-
-    @Modifying
     @Transactional
     @Query("DELETE FROM Product p WHERE p.validTo < CURRENT_DATE")
     void deleteExpiredProducts();
