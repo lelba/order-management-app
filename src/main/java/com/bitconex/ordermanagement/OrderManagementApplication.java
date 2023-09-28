@@ -166,7 +166,11 @@ public class OrderManagementApplication implements CommandLineRunner {
 		String directoryPath = scanner();
 		System.out.println("Please enter file name: ");
 		String fileName = scanner();
-		orderExportService.exportOrdersToCsv(directoryPath, fileName);
+		try {
+			orderExportService.exportOrdersToCsv(directoryPath, fileName);
+		} catch (Exception e) {
+			LOG.error(e.getMessage());
+		}
 	}
 
 	private void productCatalog() {
