@@ -1,3 +1,5 @@
+ORDER MANAGEMENT APPLICATION
+
 REST Api
 When using the REST Api, the user must be authenticated: localhost:8080/api/authenticate
 
