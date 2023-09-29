@@ -51,20 +51,15 @@ public class OrderExportService {
                  CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT
                          .withHeader("Order ID", "Product Name", "Product Price"))) {
 
-                String currentOrderId = null;
                 for (OrderDTO order : orders) {
-                    if (!order.getId().equals(currentOrderId)) {
-                        // Dodajte prazan red između narudžbi
-                        csvPrinter.printRecord("");
+                    // Dodajte prazan red između narudžbi
+                    csvPrinter.printRecord("");
 
-                        // istakne koji order je u pitanju
-                        String boldOrderId = "Order ID: " + order.getId();
-                        csvPrinter.printRecord(boldOrderId);
-                        String customer = "Customer: " + order.getUser().getUsername();
-                        csvPrinter.printRecord(customer);
-
-                        currentOrderId = String.valueOf(order.getId());
-                    }
+                    // istakne koji order je u pitanju
+                    String boldOrderId = "Order ID: " + order.getId();
+                    csvPrinter.printRecord(boldOrderId);
+                    String customer = "Customer: " + order.getUser().getUsername();
+                    csvPrinter.printRecord(customer);
 
                     for (OrderItemDTO orderItem : order.getOrderItemDTOList()) {
                         csvPrinter.printRecord("", orderItem.getProduct().getName(), orderItem.getProduct().getPrice());
@@ -88,9 +83,6 @@ public class OrderExportService {
             OrderDTO orderDTO = orderService.convertToOrderDTO(order);
             orderDTOs.add(orderDTO);
         }
-
         return orderDTOs;
     }
-
-
 }
