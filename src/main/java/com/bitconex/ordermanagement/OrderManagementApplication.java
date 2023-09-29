@@ -212,7 +212,11 @@ public class OrderManagementApplication implements CommandLineRunner {
 
 	}
 	private void listOfAllProducts() {
-		productService.printAllProducts();
+		try{
+			productService.printAllProducts();
+		} catch (Exception e) {
+			LOG.error(e.getMessage());
+		}
 	}
 
 	private void addNewProduct() {
