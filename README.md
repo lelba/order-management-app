@@ -1,7 +1,7 @@
 ORDER MANAGEMENT APPLICATION
 
 REST Api
-When using the REST Api, the user must be authenticated: localhost:8080/api/authenticate
+When using the REST Api, the user must be authenticated: localhost:8080/api/authenticate with username and password to get token. When the user gets the token, it can be used by the following endpoints in the following way:
 
 If the user has ADMIN roles, the user can access the following endpoints:
 1. localhost:8080/api/users  - get All Active User
